@@ -66,7 +66,9 @@ class KitchenController extends Controller
                 'time_end' => now(),
             ]);
             $order->save();
-            event(new ToWaiter($order));
+            if($order->takeaway == false) {
+                event(new ToWaiter($order));
+            }
             $branch = $order->branch;
             $bill = Bill::where('id',$order->bill_id)->where('is_paid',0)->latest()->first();
             if($bill) {
