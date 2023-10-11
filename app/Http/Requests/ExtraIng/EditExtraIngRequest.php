@@ -24,7 +24,6 @@ class EditExtraIngRequest extends FormRequest
     {
         return [
             'ingredient_id' => [Rule::exists('ingredients' , 'id')],
-            'price_per_kilo' => 'numeric|required',
             'branch_id' => [Rule::exists('branches' , 'id')]
         ];
     }

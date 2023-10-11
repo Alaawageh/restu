@@ -10,7 +10,7 @@ class ProductExtraIngredient extends Model
     use HasFactory;
     protected $table = 'product_extra_ingredient';
     protected $fillable = [
-        'product_id' ,'extra_ingredient_id' ,'quantity','price_per_piece'
+        'product_id' ,'ingredient_id' ,'price_per_piece'
     ];
 
     public function product()
@@ -18,8 +18,8 @@ class ProductExtraIngredient extends Model
         return $this->belongsTo(Product::class);
     }
 
-    public function extraIngredient()
+    public function ingredient()
     {
-        return $this->belongsTo(ExtraIngredient::class);
+        return $this->belongsTo(Ingredient::class);
     }
 }

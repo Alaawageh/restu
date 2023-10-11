@@ -23,7 +23,6 @@ class AddExtraIngRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'price_per_kilo' => 'numeric|required',
             'branch_id' => ['required' , Rule::exists('branches' , 'id')],
             'ingredient_id' => ['required' , Rule::exists('ingredients' , 'id')]
         ];

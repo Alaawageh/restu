@@ -24,11 +24,11 @@ class Product extends Model
     }
     public function ingredients()
     {
-        return $this->belongsToMany(Ingredient::class,'product_ingredient')->withPivot('quantity','is_remove');
+        return $this->belongsToMany(Ingredient::class,'product_ingredient')->withPivot('is_remove');
     }
     public function extraIngredients()
     {
-        return $this->belongsToMany(ExtraIngredient::class,'product_extra_ingredient')->withPivot('quantity','price_per_piece');
+        return $this->belongsToMany(Ingredient::class,'product_extra_ingredient')->withPivot('product_id','ingredient_id','price_per_piece');
     }
     public function orders()
     {

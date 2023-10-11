@@ -16,12 +16,12 @@ class ExtraResource extends JsonResource
     {
         return[
             'id' => $this->id,
-            'name' => $this->ingredient->name,
+            'name' => $this->name,
             // 'ingredient_id' => $this->ingredient->id,
-            'quantity' => $this->pivot->quantity,
+            // 'quantity' => $this->pivot->quantity,
             'price_per_piece' => $this->pivot->price_per_piece,
-            'price_per_kilo' =>$this->price_per_kilo,
-            'branch' => $this->branch,
+            // 'price_per_kilo' =>$this->price_per_kilo,
+            // 'branch' => $this->branch,
         ];
     }
 }

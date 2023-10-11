@@ -111,21 +111,18 @@ class ProductController extends Controller
 
             if (is_array($request->ingredients)) {
                 foreach ($request->ingredients as $ingredient) {
-                    $product->ingredients()->attach($ingredient['id'], ['quantity' => $ingredient['quantity'],'is_remove' => $ingredient['is_remove']]);
+                    $product->ingredients()->attach($ingredient['id'],['is_remove' => $ingredient['is_remove']]);
                 }
             }
             if (is_array($request->extra_ingredients)) {
                 foreach ($request->extra_ingredients as $extraIngredient) {
-                    $extra = ExtraIngredient::find($extraIngredient['id']);
-                    if($extra) {
-                        ProductExtraIngredient::create([
-                            'product_id' => $product['id'],
-                            'extra_ingredient_id' => $extra['id'],
-                            'quantity' => $extraIngredient['quantity'],
-                            'price_per_piece' => ($extra->price_per_kilo * $extraIngredient['quantity'])/1000,
-                        ]);
-                    }
-                    // $product->extraIngredients()->attach($extraIngredient['id'], ['quantity' => $extraIngredient['quantity']]);
+                    $ing = Ingredient::find($extraIngredient['id']);
+                    $p = ProductExtraIngredient::create([
+                        'product_id' => $product->id,
+                        'ingredient_id' => $ing['id'],
+                        'price_per_piece' => $extraIngredient['price_per_piece']
+                    ]);
+                    // $product->extraIngredients()->attach($extraIngredient['id'], ['price_per_piece' => $extraIngredient['price_per_piece']]);
                 }
             }
             DB::commit();
@@ -161,24 +158,23 @@ class ProductController extends Controller
         $product->ingredients()->detach();
         if (is_array($request->ingredients)) {
             foreach ($request->ingredients as $ingredient) {
-                $product->ingredients()->attach($ingredient['id'], ['quantity' => $ingredient['quantity'],'is_remove' => $ingredient['is_remove']]);
+                $product->ingredients()->attach($ingredient['id'],['is_remove' => $ingredient['is_remove']]);
             }
         }
         $product->extraIngredients()->detach();
         if (is_array($request->extra_ingredients)) {
             foreach ($request->extra_ingredients as $extraIngredient) {
-                $extra = ExtraIngredient::find($extraIngredient['id']);
-                if($extra) {
-                    ProductExtraIngredient::create([
-                        'product_id' => $product['id'],
-                        'extra_ingredient_id' => $extra['id'],
-                        'quantity' => $extraIngredient['quantity'],
-                        'price_per_piece' => ($extra->price_per_kilo * $extraIngredient['quantity'])/1000,
-                    ]);
-                }
-                // $product->extraIngredients()->attach($extraIngredient['id'], ['quantity' => $extraIngredient['quantity']]);
+                $ing = Ingredient::find($extraIngredient['id']);
+                ProductExtraIngredient::create([
+                    'product_id' => $product->id,
+                    'ingredient_id' => $ing['id'],
+                    'price_per_piece' => $extraIngredient['price_per_piece']
+                ]);
+                // $product->extraIngredients()->attach($extraIngredient['id'], ['price_per_piece' => $extraIngredient['price_per_piece']]);
             }
         }
+       
+
         $product->save();
         return $this->apiResponse(ProductResource::make($product),'Data Successfully Saved',200);
     }
@@ -230,7 +226,6 @@ class ProductController extends Controller
             $ingredientIds = [];
             foreach ($request->ingredients as $ingredient) {
                 $ingredientIds[$ingredient['id']] = [
-                    'quantity' => $ingredient['quantity'],
                     'is_remove' => $ingredient['is_remove']
                 ];
             }
@@ -244,10 +239,8 @@ class ProductController extends Controller
 
             $ingredientIds = [];
             foreach ($request->extra_ingredients as $ingredient) {
-                $extra = ExtraIngredient::find($ingredient['id']);
                 $ingredientIds[$ingredient['id']] = [
-                    'quantity' => $ingredient['quantity'],
-                    'price_per_piece' => ($extra->price_per_kilo * $ingredient['quantity'])/1000
+                    'price_per_piece' => $ingredient['price_per_piece']
                 ];
             }
             $product->extraIngredients()->syncWithoutDetaching($ingredientIds);
@@ -260,9 +253,9 @@ class ProductController extends Controller
         $product->ingredients()->detach($ingredient->id);
         return $this->apiResponse(ProductResource::make($product),'success',200); 
     }
-    public function deleteExtra(Product $product,ExtraIngredient $extraIngredient) {
+    public function deleteExtra(Product $product,Ingredient $ingredient) {
         
-        $product->extraIngredients()->detach($extraIngredient->id);
+        $product->extraIngredients()->detach($ingredient->id);
         return $this->apiResponse(ProductResource::make($product),'success',200); 
     }
     public function editIsRemove($product_id, $ingredient_id)

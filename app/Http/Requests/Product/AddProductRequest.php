@@ -26,11 +26,10 @@ class AddProductRequest extends FormRequest
             'status' => 'in:0,1',
             'category_id' => ['required' , Rule::exists('categories' , 'id')],
             'branch_id' => ['required' , Rule::exists('branches' , 'id')],
-            'ingredients.*.id' => ['required' , Rule::exists('ingredients' , 'id')],
-            'ingredients.*.quantity' => 'required|numeric',
+            'ingredients.*.id' => ['nullable' , Rule::exists('ingredients' , 'id')],
             'ingredients.*.is_remove' => 'in:0,1',
-            'extra_ingredients.*.id' => ['nullable' , Rule::exists('extra_ingredients' , 'id')],
-            'extra_ingredients.*.quantity' => 'nullable|numeric',
+            'extra_ingredients.*.id' => ['nullable' , Rule::exists('ingredients' , 'id')],
+            'extra_ingredients.*.price_per_piece' => 'nullable|numeric',
         ];
     }
 }
