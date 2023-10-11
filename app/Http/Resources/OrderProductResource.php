@@ -2,6 +2,7 @@
 
 namespace App\Http\Resources;
 
+use App\Models\Ingredient;
 use App\Models\OrderProduct;
 use App\Models\OrderProductExtraIngredient;
 use App\Models\Product;
@@ -52,22 +53,27 @@ class OrderProductResource extends JsonResource
                 $productData['removeIngredient'] = $removeIngredient;
             }
             if(isset($product->extra)){
+                
                 $xx = [];
                 foreach ($product->extra as $extraIngredient) {
-                    $price_by_peice = ProductExtraIngredient::where('product_id',$pro->id)->where('extra_ingredient_id',$extraIngredient->id)->first();
-
-                    if($price_by_peice) {
+                   
+                    $ingredientData = Ingredient::find($extraIngredient['id']);
+                    
+                    $productExtra = ProductExtraIngredient::where('product_id',$pro->id)->where('ingredient_id',$ingredientData->id)->first();
+                    if($productExtra) {
                         $extraIngredientData = [
-                            'id' => $extraIngredient->id,
-                            'name' => $extraIngredient->ingredient->name,
-                            'price_per_piece' => $price_by_peice->price_per_piece,
+                            'id' => $ingredientData->id,
+                            'name' => $ingredientData->name,
+                            'price_per_piece' => $productExtra->price_per_piece,
                         ];
                     }else{
                         $extraIngredientData = [
-                            'id' => $extraIngredient->id,
-                            'name' => $extraIngredient->ingredient->name,
+                            'id' => $ingredientData->id,
+                            'name' => $ingredientData->name,
                         ];
                     }
+
+                    
                     $xx[] = $extraIngredientData;
                     
                 }

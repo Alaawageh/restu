@@ -48,10 +48,12 @@ class OrderController extends Controller
     {
         DB::beginTransaction();
         try{
-            $TableID = Table::where('table_num', 1111)->pluck('id');
+            $Table = Table::where('table_num', 1111)->first();
+            $TableID = $Table->id;
+            
             $order = Order::where('table_id',$request->table_id)->where('branch_id',$request->branch_id)->where('is_paid',0)->where('table_id','!=',$TableID)->latest()->first();
         
-            if (! $order && $request->table_id === $TableID ) {
+            if (! $order && $request->table_id == $TableID ) {
                 $bill = Bill::create([
                     'price' => 0 ,
                     'is_paid' => 0 
@@ -93,15 +95,16 @@ class OrderController extends Controller
                     if(isset($productData['extraIngredients'])) {
                         foreach($productData['extraIngredients'] as $ingredientData) {
     
-                            $extraingredient = ExtraIngredient::find($ingredientData['ingredient_id']);
-                            $qtyExtra = ProductExtraIngredient::where('product_id',$product->id)->where('extra_ingredient_id',$extraingredient->id)->first();
+                            $extraingredient = Ingredient::find($ingredientData['ingredient_id']);
+                            $qtyExtra = ProductExtraIngredient::where('product_id',$product->id)->where('ingredient_id',$extraingredient->id)->first();
                             $sub = $qtyExtra['price_per_piece'] * $productData['qty'];
                            
-                            OrderProductExtraIngredient::create([
+                            $y = OrderProductExtraIngredient::create([
                                 'order_product_id' => $orderProduct->id,
-                                'extra_ingredient_id' => $extraingredient['id'],
+                                'ingredient_id' => $extraingredient['id'],
                                
                             ]); 
+                            
                             $totalPrice += $sub;
                         }
                     }
@@ -123,7 +126,7 @@ class OrderController extends Controller
                 event(new NewOrder($order));
                 DB::commit();
                 return $this->apiResponse(($order),'Data Saved successfully',201);
-            }elseif(! $order && $request->table_id !== $TableID ){
+            }elseif(! $order && $request->table_id != $TableID ){
                 $bill = Bill::create([
                     'price' => 0 ,
                     'is_paid' => 0 
@@ -154,6 +157,7 @@ class OrderController extends Controller
                         'subTotal' => $product['price'] * $productData['qty']
                     ]);
                     $totalPrice += $orderProduct['subTotal'];
+
                     if(isset($productData['removedIngredients'])) {
                         foreach($productData['removedIngredients'] as $removedIngredientData) {
                             $ing = Ingredient::find($removedIngredientData['remove_id']);
@@ -165,15 +169,16 @@ class OrderController extends Controller
                     if(isset($productData['extraIngredients'])) {
                         foreach($productData['extraIngredients'] as $ingredientData) {
     
-                            $extraingredient = ExtraIngredient::find($ingredientData['ingredient_id']);
-                            $qtyExtra = ProductExtraIngredient::where('product_id',$product->id)->where('extra_ingredient_id',$extraingredient->id)->first();
+                            $extraingredient = Ingredient::find($ingredientData['ingredient_id']);
+                            $qtyExtra = ProductExtraIngredient::where('product_id',$product->id)->where('ingredient_id',$extraingredient->id)->first();
                             $sub = $qtyExtra['price_per_piece'] * $productData['qty'];
                            
-                            OrderProductExtraIngredient::create([
+                            $y = OrderProductExtraIngredient::create([
                                 'order_product_id' => $orderProduct->id,
-                                'extra_ingredient_id' => $extraingredient['id'],
+                                'ingredient_id' => $extraingredient['id'],
                                
                             ]); 
+                            
                             $totalPrice += $sub;
                         }
                     }
@@ -235,12 +240,14 @@ class OrderController extends Controller
             
                     if(isset($productData['extraIngredients'])) {
                         foreach($productData['extraIngredients'] as $ingredientData) {
-                            $extraingredient = ExtraIngredient::find($ingredientData['ingredient_id']);
-                            $qtyExtra = ProductExtraIngredient::where('product_id',$product->id)->where('extra_ingredient_id',$extraingredient->id)->first();
+                            $extraingredient = Ingredient::find($ingredientData['ingredient_id']);
+                            $qtyExtra = ProductExtraIngredient::where('product_id',$product->id)->where('ingredient_id',$extraingredient->id)->first();
                             $sub = $qtyExtra['price_per_piece'] * $productData['qty'];
+
                             OrderProductExtraIngredient::create([
                                 'order_product_id' => $x->id,
-                                'extra_ingredient_id' => $extraingredient['id'],
+                                'ingredient_id' => $extraingredient['id'],
+                               
                             ]); 
                             $totalPrice += $sub;
                         }
@@ -319,12 +326,15 @@ class OrderController extends Controller
             
                     if(isset($productData['extraIngredients'])) {
                         foreach($productData['extraIngredients'] as $ingredientData) {
-                            $extraingredient = ExtraIngredient::find($ingredientData['ingredient_id']);
-                            $qtyExtra = ProductExtraIngredient::where('product_id',$product->id)->where('extra_ingredient_id',$extraingredient->id)->first();
+
+                            $extraingredient = Ingredient::find($ingredientData['ingredient_id']);
+                            $qtyExtra = ProductExtraIngredient::where('product_id',$product->id)->where('ingredient_id',$extraingredient->id)->first();
                             $sub = $qtyExtra['price_per_piece'] * $productData['qty'];
+
                             OrderProductExtraIngredient::create([
                                 'order_product_id' => $x->id,
-                                'extra_ingredient_id' => $extraingredient['id'],
+                                'ingredient_id' => $extraingredient['id'],
+                               
                             ]); 
                             $totalPrice += $sub;
                         }

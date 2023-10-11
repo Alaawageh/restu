@@ -50,22 +50,23 @@ class OrderResource extends JsonResource
             }
             
             if(isset($product->extra)){
-
+                
                 $xx = [];
                 foreach ($product->extra as $extraIngredient) {
+                   
+                    $ingredientData = Ingredient::find($extraIngredient['id']);
                     
-                    $productExtra = ProductExtraIngredient::where('product_id',$pro->id)->where('extra_ingredient_id',$extraIngredient->id)->first();
+                    $productExtra = ProductExtraIngredient::where('product_id',$pro->id)->where('ingredient_id',$ingredientData->id)->first();
                     if($productExtra) {
                         $extraIngredientData = [
-                            'id' => $extraIngredient->id,
-                            'name' => $extraIngredient->ingredient->name,
-                            'quantity' => $productExtra->quantity,
+                            'id' => $ingredientData->id,
+                            'name' => $ingredientData->name,
                             'price_per_piece' => $productExtra->price_per_piece,
                         ];
                     }else{
                         $extraIngredientData = [
-                            'id' => $extraIngredient->id,
-                            'name' => $extraIngredient->ingredient->name,
+                            'id' => $ingredientData->id,
+                            'name' => $ingredientData->name,
                         ];
                     }
 

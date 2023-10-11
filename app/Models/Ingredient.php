@@ -29,5 +29,10 @@ class Ingredient extends Model
     {
         return $this->belongsToMany(OrderProduct::class, 'remove_ingredients')->withPivot('order_product_id','ingredient_id');
     }
+    public function orderProduct()
+    {
+        return $this->belongsToMany(OrderProduct::class,'order_products');
+                    
+    }
 
 }

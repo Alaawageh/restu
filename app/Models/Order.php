@@ -34,8 +34,7 @@ class Order extends Model
     }
     public function extra()
     {
-        return $this->belongsToMany(ExtraIngredient::class,'order_product_extra_ingredient');
-                    
+        return $this->belongsToMany(Ingredient::class,'order_product_extra_ingredient')->withPivot('order_product_id','ingredient_id');                                  
     }
     public function products()
     {

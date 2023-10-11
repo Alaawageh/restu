@@ -16,9 +16,10 @@ class ExtraProductResource extends JsonResource
     {
         return [
             'id' => $this->id,
-            'ingredient' => $this->ingredient,
+            'name' => $this->name,
+            'name_ar' => $this->name_ar,
             'price_per_piece' =>$this->pivot->price_per_piece,
-            'quantity' =>$this->pivot->quantity,
+            // 'quantity' =>$this->pivot->quantity,
             'branch' => $this->branch
         ];
     }
