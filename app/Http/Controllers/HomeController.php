@@ -17,11 +17,18 @@ use App\Models\Product;
 use App\Models\Rating;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Maatwebsite\Excel\Facades\Excel;
+use App\Exports\ReviewsExport;
 
 class HomeController extends Controller
 {
     use ApiResponseTrait;
 
+    public function export(Branch $branch) {
+        $orders = Order::where('branch_id',$branch->id)->get();
+        return Excel::download(new ReviewsExport($orders), 'reviews.xlsx');
+
+    }
     public function countOrder(Request $request,Branch $branch)
     {
         $year = $request->year;

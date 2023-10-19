@@ -6,14 +6,12 @@ use App\Http\Controllers\ApiResponseTrait;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\ExtraIng\AddExtraIngRequest;
 use App\Http\Requests\ExtraIng\EditExtraIngRequest;
-use App\Http\Requests\ExtraIngredient\EditExtraRequest;
 use App\Http\Resources\ExtraIngResource;
 use App\Http\Resources\ExtraProductResource;
 use App\Models\Branch;
 use App\Models\ExtraIngredient;
 use App\Models\Ingredient;
 use App\Models\Product;
-use Illuminate\Http\Request;
 
 class ExtraIngController extends Controller
 {

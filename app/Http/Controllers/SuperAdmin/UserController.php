@@ -24,7 +24,7 @@ class UserController extends Controller
             $users = $branch->users()->get();
             return $this->apiResponse(UserResource::collection($users), 'success', 200);
         // }
-        return response()->json(['error' => 'FORBIDDEN'],Response::HTTP_FORBIDDEN);
+       
 
     }
     public function show(User $user)

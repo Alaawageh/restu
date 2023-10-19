@@ -14,13 +14,7 @@ use Illuminate\Support\Facades\File;
 class OfferController extends Controller
 {
     use ApiResponseTrait;
-
-    // public function index()
-    // {
-    //     $offers = OfferResource::collection(Offer::get());
-    //     return $this->apiResponse($offers,'success',200);
-    // }
-
+    
     public function getOffers(Branch $branch)
     {
         $offers = $branch->offer()->get();

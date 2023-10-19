@@ -130,6 +130,7 @@ Route::middleware(['auth:sanctum','Admin'])->group(function() {
     Route::get('/feedbacks/{branch}',[HomeController::class,'getfeedbacks']);
     Route::post('/product/avgRating/{branch}',[HomeController::class,'avgRatingProduct']);
     Route::post('/waiter/countTables/{branch}',[HomeController::class,'countTables']);
+    Route::get('/export',[HomeController::class,'export']);
 });
 
 
