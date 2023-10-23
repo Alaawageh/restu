@@ -104,20 +104,26 @@ class ProductController extends Controller
             $this->CheckHasFile($product);
         }
         $product->update($request->except('position'));
-
         if($request->position) {
-
             $products = Product::where('category_id',$request->category_id)->orderBy('position')->get();
-            foreach ($products as $pro) {
-                if($pro->position >= $request->position && $pro->position != null ){
-                    $pro->position++;
-                    $pro->save();
-                } 
+            $nextPosition =  $products->max('position') + 1;
+            if ($products->isNotEmpty()) {
+                foreach ($products as $pro) {
+                    if($pro->position >= $request->position && $pro->position != null ){
+                        $pro->position++;
+                        $pro->save();
+                    } 
+                }
+                if($nextPosition < $request->position) {
+                    $product->position = $nextPosition;
+                    $product->save();
+                }
+                $product->position = $request->position;
+                $product->save();
+                $product->ReOrder($request);
+                $product->save();
             }
-            $product->position = $request->position;
         }
-        $product->save();
-        $product->ReOrder($request);
         return $this->apiResponse(ProductResource::make($product),'Data Successfully Saved',200);
     }
     public function CheckHasFile($product)

@@ -82,11 +82,27 @@ class CategoryController extends Controller
         $category->update($request->except('position'));
         if($request->position)
         {
-            $this->position($request);
-            $category->position = $request->position; 
+            
+            $categories = Category::where('branch_id',$request->branch_id)->orderBy('position','ASC')->get();
+            $nextPosition = $categories->max('position') + 1;
+            if ($categories->isNotEmpty())
+            {
+                foreach($categories as $cat){
+                    if($cat->position >= $request->position && $cat->position != null ){
+                        $cat->position++;
+                        $cat->save();
+                    }
+                }
+                if($nextPosition < $request->position) {
+                    $category->position = $nextPosition;
+                    $category->save();
+                }
+            }
+            $category->position = $request->position;
+            $category->save();
+            $category->ReOrder($request); 
+            $category->save();
         }
-        $category->save();
-        $category->ReOrder($request);
 
         return $this->apiResponse(CategoryResource::make($category),'Data successfully saved',200);
     }
