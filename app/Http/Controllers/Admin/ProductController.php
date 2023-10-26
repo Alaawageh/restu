@@ -109,20 +109,24 @@ class ProductController extends Controller
             $nextPosition =  $products->max('position') + 1;
             if ($products->isNotEmpty()) {
                 foreach ($products as $pro) {
-                    if($pro->position >= $request->position && $pro->position != null ){
+                    if($pro->position > $request->position && $pro->position != null ){
                         $pro->position++;
                         $pro->save();
-                    } 
+                    }elseif($pro->position <= $request->position && $pro->position != null ) {
+                        $pro->position--;
+                        $pro->save();
+                    }
                 }
                 if($nextPosition < $request->position) {
                     $product->position = $nextPosition;
                     $product->save();
                 }
-                $product->position = $request->position;
-                $product->save();
-                $product->ReOrder($request);
-                $product->save();
+
             }
+            $product->position = $request->position;
+            $product->save();
+            $product->ReOrder($request);
+            $product->save();
         }
         return $this->apiResponse(ProductResource::make($product),'Data Successfully Saved',200);
     }
@@ -225,6 +229,11 @@ class ProductController extends Controller
         $ing = $product->ingredients()->get();
         return $this->apiResponse(IngredientResource::collection($ing),'success',200);
 
+    }
+    public function searchProducts(Request $request,Branch $branch)
+    {
+        $products = Product::where('branch_id',$branch->id)->where('name', 'LIKE', "%$request->name%")->get();
+        return response()->json($products);
     }
 
 }
