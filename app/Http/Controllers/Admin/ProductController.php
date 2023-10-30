@@ -99,40 +99,30 @@ class ProductController extends Controller
     public function update(EditProductRequest $request , Product $product)
     {
         $request->validated($request->all());
-
         if($request->hasFile('image')) {
             $this->CheckHasFile($product);
         }
-        $product->update($request->except('position'));
-        if ($request->position) {
-            $maxPosition = Product::where('category_id', $request->category_id)->orderBy('position', 'ASC')->max('position');
-            $currentPosition = $product->position;
-            $newPosition = $request->position;
-            $product->update(['position' => $newPosition]);
-
-            if ($newPosition < $currentPosition) {
-                $products = Product::where('category_id', $request->category_id)
-                                    ->whereBetween('position', [$newPosition, $currentPosition - 1])
-                                    ->where('id', '<>', $product->id)
-                                    ->get();
-                foreach ($products as $one) {
-                    $one->update(['position' => $one->position + 1]);
-                }
-            }
-            if ($newPosition > $currentPosition) {
-                $products = Product::where('category_id', $request->category_id)
-                                    ->whereBetween('position', [$currentPosition + 1, $newPosition])
-                                    ->where('id', '<>', $product->id)
-                                    ->get();
-                foreach ($products as $one) {
-                    $one->update(['position' => $one->position - 1]);
-                }
-            }
-            if ($newPosition > $maxPosition) {
-                $product->update(['position' => $maxPosition]);
-            }
+        $MaxPosition = Product::where('branch_id', $product->branch_id)->where('category_id', $product->category_id)->max('position');
+        $currentPosition = $product->position;
+        $newPosition = $request->position;
+        if ($newPosition > $currentPosition || $newPosition > $MaxPosition + 1) {
+            Product::where('category_id', $product->category_id)
+                    ->where('branch_id',$product->branch_id)
+                    ->where('position', '>', $currentPosition)
+                    ->where('position', '<=', $newPosition)
+                    ->orWhere('position', '<=', $MaxPosition)
+                    ->where('position','!=',null)
+                    ->decrement('position'); 
             
+        }elseif ($newPosition < $currentPosition && $newPosition < $MaxPosition + 1) {
+            Product::where('category_id', $product->category_id)
+                    ->where('branch_id', $product->branch_id)
+                    ->where('position', '>=', $newPosition)
+                    ->where('position', '<', $currentPosition)
+                    ->where('position','!=',null)
+                    ->increment('position');            
         }
+        $product->update($request->all());
         return $this->apiResponse(ProductResource::make($product),'Data Successfully Saved',200);
     }
     public function CheckHasFile($product)
@@ -237,7 +227,7 @@ class ProductController extends Controller
     }
     public function searchProducts(Request $request,Branch $branch)
     {
-        $products = Product::where('branch_id',$branch->id)->where('name', 'LIKE', "%$request->name%")->get();
+        $products = Product::where('status',1)->where('branch_id',$branch->id)->where('name', 'LIKE', "%$request->name%")->get();
         return response()->json($products);
     }
 

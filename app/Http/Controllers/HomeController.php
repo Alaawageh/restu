@@ -25,7 +25,7 @@ class HomeController extends Controller
     use ApiResponseTrait;
 
     public function export(Branch $branch) {
-        $orders = Order::where('branch_id',$branch->id)->get();
+        $orders = Order::where('branch_id',$branch->id)->where('serviceRate','!=',null)->orWhere('feedback','!=',null)->get();
         return Excel::download(new ReviewsExport($orders), 'reviews.xlsx');
 
     }
@@ -102,6 +102,38 @@ class HomeController extends Controller
         ->get();
         
         return $this->apiResponse($avgSalesByYear,'success',200);
+    }
+    public function mostRequested(Branch $branch) {
+        $mostRequestedProduct = OrderProduct::selectRaw('SUM(qty) as most_order , product_id')
+        ->whereHas('product.branch', function ($query) use ($branch) {
+            $query->where('id', $branch->id);
+        })->whereHas('product', function ($q){
+            $q->where('status',1);
+        })->whereHas('product.category',function ($q1) {
+            $q1->where('status',1);
+        });
+        $order = $mostRequestedProduct->groupBy('product_id')
+        ->orderByRaw('SUM(qty) DESC')
+        ->limit(5)
+        ->get();
+    
+    
+        return $this->apiResponse(HomeResource::collection($order),'success',200);
+    }
+    public function mostRated(Branch $branch) {
+        $mostRatedProduct = Rating::selectRaw('SUM(value) as RateProduct , product_id')
+        ->whereHas('product.branch', function ($query) use ($branch) {
+            $query->where('id', $branch->id);
+        })->whereHas('product', function ($q){
+            $q->where('status',1);
+        })->whereHas('product.category',function ($q1) {
+            $q1->where('status',1);
+        });
+        $order = $mostRatedProduct->groupBy('product_id')
+        ->orderByRaw('SUM(value) DESC')
+        ->limit(5)
+        ->get();
+        return $this->apiResponse(RateProductResource::collection($order),'The most rated product',200);
     }
     public function mostRequestedProduct(Request $request,Branch $branch)
     {
@@ -428,7 +460,7 @@ class HomeController extends Controller
    }
    public function getfeedbacks(Branch $branch)
    {
-    $orders = Order::where('branch_id',$branch->id)->where('serviceRate','!=',null)->where('feedback','!=',null)
+    $orders = Order::where('branch_id',$branch->id)->where('serviceRate','!=',null)->orWhere('feedback','!=',null)
     ->where('time','!=',null)->where('time_end','!=',null)->where('time_Waiter','!=',null)->get();
 
     return $this->apiResponse(RateServiceResource::collection($orders),'success',200);
