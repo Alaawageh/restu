@@ -75,15 +75,7 @@ class RestaurantController extends Controller
     
     public function delete(Restaurant $restaurant)
     {
-        $branches = $restaurant->branch()->get();
-        foreach($branches as $branch) {
-            
-            $branch->users()->delete();
-            $branch->delete();
-        }
-        
         $restaurant->delete();
-        
         return $this->apiResponse(null, 'Deleted Successfully', 200);
     }
 
