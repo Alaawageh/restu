@@ -20,12 +20,8 @@ class UserController extends Controller
 
     public function GetUserByBranch(Branch $branch)
     {
-        // if($branch->restaurant_id === auth()->user()->id) {
-            $users = $branch->users()->get();
-            return $this->apiResponse(UserResource::collection($users), 'success', 200);
-        // }
-       
-
+        $users = $branch->users()->get();
+        return $this->apiResponse(UserResource::collection($users), 'success', 200);
     }
     public function show(User $user)
     {

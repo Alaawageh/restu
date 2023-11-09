@@ -25,10 +25,6 @@ class RestaurantController extends Controller
 
     public function show(Restaurant $restaurant)
     {
-        // if ($restaurant->id !== auth()->user()->id) {
-        //     return response()->json(['error' => 'FORBIDDEN'],Response::HTTP_FORBIDDEN) ;
-
-        // }
         return $this->apiResponse(RestaurantResource::make($restaurant), 'success', 200);
     }
 
@@ -68,31 +64,26 @@ class RestaurantController extends Controller
             ['password' => bcrypt($request->password)]
         ));
         
-        $branch = Branch::find($restaurant->id);
-       $branch->update([
-        'name' => $request->name,
-        'address' => $request->address,
-        'taxRate' => '15%',
-        'restaurant_id' => $restaurant->id
-       ]);
-       $user = User::find($restaurant->id);
-       $user->update([
-        'email' => $request->email,
-        'password' => bcrypt($request->password),
-        'user_type' => UserTypes::ADMIN,
-        'branch_id' => $branch->id,
-       ]);
+       $branch = Branch::where('restaurant_id',$restaurant->id)->first();
+       $branch->update($request->only('name'));
 
-        return $this->apiResponse(RestaurantResource::make($restaurant), 'Data Successfully Updated', 200);
+       $user = User::where('branch_id',$branch->id)->first();
+       $user->update(array_merge($request->only(['email','password'])),['password' => bcrypt($request->password)]);
+        
+       return $this->apiResponse(RestaurantResource::make($restaurant), 'Data Successfully Updated', 200);
     }
     
     public function delete(Restaurant $restaurant)
     {
-        $user = User::find($restaurant->id);
-        $user->delete();
-        $branch = Branch::find($restaurant->id);
-        $branch->delete();
+        $branches = $restaurant->branch()->get();
+        foreach($branches as $branch) {
+            
+            $branch->users()->delete();
+            $branch->delete();
+        }
+        
         $restaurant->delete();
+        
         return $this->apiResponse(null, 'Deleted Successfully', 200);
     }
 

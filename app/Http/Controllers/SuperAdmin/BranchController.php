@@ -65,6 +65,7 @@ class BranchController extends Controller
     {
 
         $branch->delete();
+        $branch->users()->delete();
         
         return $this->apiResponse(null, 'Deleted Successfully', 200);
     }
